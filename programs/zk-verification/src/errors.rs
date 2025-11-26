@@ -26,4 +26,34 @@ pub enum ZkVerificationError {
     
     #[msg("Invalid proof format")]
     InvalidProofFormat,
+    
+    #[msg("Nullifier already used - replay attack prevented")]
+    NullifierAlreadyUsed,
+    
+    #[msg("Credential has been revoked")]
+    CredentialRevoked,
+    
+    #[msg("Credential has expired")]
+    CredentialExpired,
+    
+    #[msg("Insufficient credential level")]
+    InsufficientCredentialLevel,
+    
+    #[msg("Issuer not authorized")]
+    IssuerNotAuthorized,
+    
+    #[msg("Issuer is inactive")]
+    IssuerInactive,
+    
+    #[msg("Insufficient stake amount")]
+    InsufficientStake,
+    
+    #[msg("Invalid jurisdiction")]
+    InvalidJurisdiction,
+    
+    #[msg("Attribute not proven")]
+    AttributeNotProven,
+    
+    #[msg("Disclosure proof expired")]
+    DisclosureProofExpired,
 }
