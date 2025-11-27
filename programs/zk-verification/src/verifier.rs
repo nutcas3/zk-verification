@@ -87,12 +87,41 @@ impl<'a> Groth16Verifier<'a> {
     }
 }
 
-/// Verify a proof with the given public inputs and verifying key
+/// Verify a proof with the given public inputs and verifying key (fixed-size)
 pub fn verify<const N: usize>(
     public_inputs: &[[u8; 32]; N],
     proof: &CompressedProof,
     vk: &Groth16VerifyingKey,
 ) -> Result<()> {
+    // Decompress proof points
+    let proof_a = decompress_g1(&proof.a)?;
+    let proof_b = decompress_g2(&proof.b)?;
+    let proof_c = decompress_g1(&proof.c)?;
+    
+    // Create and run verifier
+    let verifier = Groth16Verifier::new(&proof_a, &proof_b, &proof_c, public_inputs, vk)
+        .map_err(|_| ZkVerificationError::CreateGroth16VerifierFailed)?;
+    
+    verifier.verify().map_err(|_| ZkVerificationError::ProofVerificationFailed.into())
+}
+
+/// Verify a proof with variable-sized public inputs
+pub fn verify_dynamic(
+    public_inputs: &[[u8; 32]],
+    proof: &CompressedProof,
+    vk: &Groth16VerifyingKey,
+) -> Result<()> {
+    // Validate input count matches verifying key
+    let expected_inputs = vk.gamma_abc_g1.len().saturating_sub(1);
+    if public_inputs.len() != expected_inputs {
+        msg!(
+            "Public inputs length mismatch: expected {}, got {}",
+            expected_inputs,
+            public_inputs.len()
+        );
+        return Err(ZkVerificationError::InvalidPublicInputsLength.into());
+    }
+    
     // Decompress proof points
     let proof_a = decompress_g1(&proof.a)?;
     let proof_b = decompress_g2(&proof.b)?;
